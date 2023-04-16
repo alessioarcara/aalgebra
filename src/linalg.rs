@@ -1,20 +1,28 @@
 use crate::Matrix;
 
 pub fn multiply_matrices<const M: usize, const N: usize, const P: usize>(
-    a: &Matrix<M, N>, b: &Matrix<N, P>) -> Matrix<M, P> {
-        let mut result = [[0.0; P]; M];
-        for i in 0..M {
-            for j in 0..P {
-                for k in 0..N {
-                    result[i][j] += a[i][k] * b[k][j]
-                }
+    a: &Matrix<M, N>,
+    b: &Matrix<N, P>,
+) -> Matrix<M, P> {
+    let mut result = [[0.0; P]; M];
+    for i in 0..M {
+        for j in 0..P {
+            for k in 0..N {
+                result[i][j] += a[i][k] * b[k][j]
             }
         }
-        Matrix(result)
+    }
+    Matrix(result)
 }
 
-fn row_subtract<const N: usize, const P: usize>(i: usize, j: usize, pivot: f64, a: &mut Matrix<N, N>, b: &mut Matrix<N, P>) {
-    let scale = - a[i][j] / pivot;
+fn row_subtract<const N: usize, const P: usize>(
+    i: usize,
+    j: usize,
+    pivot: f64,
+    a: &mut Matrix<N, N>,
+    b: &mut Matrix<N, P>,
+) {
+    let scale = -a[i][j] / pivot;
     for k in 0..N {
         a[i][k] += a[j][k] * scale;
     }
@@ -23,7 +31,10 @@ fn row_subtract<const N: usize, const P: usize>(i: usize, j: usize, pivot: f64, 
     }
 }
 
-fn echelon_form<const N: usize, const P: usize>(a: &Matrix<N, N>, b: &Matrix<N, P>) -> Result<(Matrix<N, N>, Matrix<N, P>), &'static str> {
+fn echelon_form<const N: usize, const P: usize>(
+    a: &Matrix<N, N>,
+    b: &Matrix<N, P>,
+) -> Result<(Matrix<N, N>, Matrix<N, P>), &'static str> {
     let mut a = a.clone();
     let mut b = b.clone();
 
@@ -32,7 +43,7 @@ fn echelon_form<const N: usize, const P: usize>(a: &Matrix<N, N>, b: &Matrix<N, 
         let mut max_index = j;
         let mut max_value = a[j][j].abs();
 
-        for i in (j+1)..N {
+        for i in (j + 1)..N {
             let abs_value = a[i][j].abs();
             if abs_value > max_value {
                 max_index = i;
@@ -50,16 +61,19 @@ fn echelon_form<const N: usize, const P: usize>(a: &Matrix<N, N>, b: &Matrix<N, 
         }
 
         // row subtract
-        for i in (j+1)..N {
+        for i in (j + 1)..N {
             row_subtract(i, j, max_value, &mut a, &mut b);
         }
     }
     Ok((a, b))
 }
 
-pub fn gauss_elimination<const N: usize, const P: usize>(a: &Matrix<N, N>, b: &Matrix<N, P>) -> Result<(Matrix<N, N>, Matrix<N, P>), &'static str> {    
-    let (mut a, mut b) = echelon_form(&a, &b)?;
-    
+pub fn gauss_elimination<const N: usize, const P: usize>(
+    a: &Matrix<N, N>,
+    b: &Matrix<N, P>,
+) -> Result<(Matrix<N, N>, Matrix<N, P>), &'static str> {
+    let (mut a, mut b) = echelon_form(a, b)?;
+
     // normalize
     for j in 0..N {
         let pivot = a[j][j];

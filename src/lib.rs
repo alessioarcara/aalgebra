@@ -1,7 +1,7 @@
+mod linalg;
 mod matrix;
 mod vector;
-mod linalg;
 
+pub use linalg::{gauss_elimination, multiply_matrices};
 pub use matrix::Matrix;
 pub use vector::Vector;
-pub use linalg::{multiply_matrices, gauss_elimination};

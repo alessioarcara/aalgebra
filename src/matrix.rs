@@ -13,7 +13,7 @@ macro_rules! matrix {
     };
 }
 
-impl <const M: usize, const N: usize> Index<usize> for Matrix<M, N> {
+impl<const M: usize, const N: usize> Index<usize> for Matrix<M, N> {
     type Output = [f64; N];
 
     fn index(&self, index: usize) -> &[f64; N] {
@@ -21,13 +21,13 @@ impl <const M: usize, const N: usize> Index<usize> for Matrix<M, N> {
     }
 }
 
-impl <const M: usize, const N: usize> IndexMut<usize> for Matrix<M, N> {
+impl<const M: usize, const N: usize> IndexMut<usize> for Matrix<M, N> {
     fn index_mut(&mut self, index: usize) -> &mut [f64; N] {
         &mut self.0[index]
     }
 }
 
-impl <const M: usize, const N: usize> Clone for Matrix<M, N> {
+impl<const M: usize, const N: usize> Clone for Matrix<M, N> {
     fn clone(&self) -> Self {
         let mut result = [[0.0; N]; M];
         (0..M).for_each(|i| (0..N).for_each(|j| result[i][j] = self[i][j]));
@@ -35,8 +35,7 @@ impl <const M: usize, const N: usize> Clone for Matrix<M, N> {
     }
 }
 
-
-impl <const M: usize, const N: usize> Matrix<M, N> {   
+impl<const M: usize, const N: usize> Matrix<M, N> {
     pub fn transpose(&self) -> Matrix<N, M> {
         let mut result = [[0.0; M]; N];
         (0..M).for_each(|i| (0..N).for_each(|j| result[j][i] = self[i][j]));
@@ -44,17 +43,17 @@ impl <const M: usize, const N: usize> Matrix<M, N> {
     }
 }
 
-impl <const N: usize> Matrix<N, N> {
+impl<const N: usize> Matrix<N, N> {
     pub fn inverse(&self) -> Option<Self> {
         match gauss_elimination(self, &identity_matrix::<N>()) {
             Ok((_, inverse)) => Some(inverse),
             Err(e) => {
                 println!("{e}");
                 None
-            },
+            }
         }
     }
-    
+
     pub fn determinant(&self) -> f64 {
         fn _determinant(a: &[Vec<f64>]) -> f64 {
             let n = a.len();
@@ -67,14 +66,14 @@ impl <const N: usize> Matrix<N, N> {
                     let mut submatrix = vec![vec![0.0; n - 1]; n - 1];
                     for j in 1..n {
                         let mut k = 0;
-                        for l in 0..n {
+                        for (l, row) in a.iter().enumerate().take(n) {
                             if l != i {
-                                submatrix[k][j - 1] = a[l][j];
+                                submatrix[k][j - 1] = row[j];
                                 k += 1;
                             }
                         }
                     }
-                    det += a[i][0] * if i % 2 == 0 { 1.0 } else { - 1.0 } * _determinant(&submatrix);
+                    det += a[i][0] * if i % 2 == 0 { 1.0 } else { -1.0 } * _determinant(&submatrix);
                 }
                 det
             }
@@ -92,9 +91,9 @@ pub fn identity_matrix<const N: usize>() -> Matrix<N, N> {
 
 #[cfg(test)]
 mod tests {
-    use crate::multiply_matrices;
     use super::*;
-    
+    use crate::multiply_matrices;
+
     #[test]
     fn test_matrix_multiplication() {
         let a = matrix!(1, 2; 3, 4);

@@ -10,18 +10,18 @@ macro_rules! vector {
     };
 }
 
-impl <const N: usize> Add for Vector<N> {
+impl<const N: usize> Add for Vector<N> {
     type Output = Self;
-    
-    fn add(mut self, other: Self) -> Self{
+
+    fn add(mut self, other: Self) -> Self {
         (0..N).for_each(|i| self.0[i] += other.0[i]);
         self
     }
 }
 
-impl <const N: usize> Mul<f64> for Vector<N> {
+impl<const N: usize> Mul<f64> for Vector<N> {
     type Output = Self;
-    
+
     fn mul(mut self, other: f64) -> Self {
         (0..N).for_each(|i| self.0[i] *= other);
         self
@@ -31,7 +31,7 @@ impl <const N: usize> Mul<f64> for Vector<N> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    
+
     #[test]
     fn test_vector_addition() {
         let v1 = vector!(1, 2, 3);
