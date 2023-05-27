@@ -4,15 +4,6 @@ use std::ops::{Index, IndexMut};
 #[derive(Debug, PartialEq)]
 pub struct Matrix<const M: usize, const N: usize>(pub [[f64; N]; M]);
 
-#[macro_export]
-macro_rules! matrix {
-    ($($($x:expr),*);*) => {
-        Matrix([
-            $([$($x as f64),*]),*
-        ])
-    };
-}
-
 impl<const M: usize, const N: usize> Index<usize> for Matrix<M, N> {
     type Output = [f64; N];
 
@@ -92,7 +83,7 @@ pub fn identity_matrix<const N: usize>() -> Matrix<N, N> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::multiply_matrices;
+    use crate::{matrix, multiply_matrices};
 
     #[test]
     fn test_matrix_multiplication() {

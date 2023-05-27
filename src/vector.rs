@@ -3,13 +3,6 @@ use std::ops::{Add, Mul};
 #[derive(Debug, PartialEq)]
 pub struct Vector<const N: usize>(pub [f64; N]);
 
-#[macro_export]
-macro_rules! vector {
-    ($($x:expr),*) => {
-        Vector([$($x as f64),*])
-    };
-}
-
 impl<const N: usize> Add for Vector<N> {
     type Output = Self;
 
@@ -28,9 +21,18 @@ impl<const N: usize> Mul<f64> for Vector<N> {
     }
 }
 
+impl<const N: usize> Clone for Vector<N> {
+    fn clone(&self) -> Self {
+        Self(self.0)
+    }
+}
+
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use crate::{
+        linalg::{dot_product, gram_schmidt},
+        vector,
+    };
 
     #[test]
     fn test_vector_addition() {
@@ -44,5 +46,26 @@ mod tests {
         let v1 = vector!(1, 2, 3);
         let scalar = 3.0;
         assert_eq!(v1 * scalar, vector!(3, 6, 9));
+    }
+
+    #[test]
+    fn test_vector_clone() {
+        let v1 = vector!(1, 2, 3);
+        let v2 = v1.clone();
+        assert_eq!(v1, v2);
+    }
+
+    #[test]
+    fn test_dot_product() {
+        let v1 = vector!(1, 1, 0, 0);
+        let v2 = vector!(3, 0, 0, 1);
+        assert_eq!(3.0, dot_product(&v1, &v2));
+    }
+
+    #[test]
+    fn test_gram_schmidt() {
+        let v = [vector!(1, 1, 0), vector!(2, 0, 1)];
+        let u = [vector!(1, 1, 0), vector!(1, -1, 1)];
+        assert_eq!(u, gram_schmidt(&v).as_ref());
     }
 }

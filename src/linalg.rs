@@ -1,4 +1,4 @@
-use crate::Matrix;
+use crate::{Matrix, Vector};
 
 pub fn multiply_matrices<const M: usize, const N: usize, const P: usize>(
     a: &Matrix<M, N>,
@@ -88,4 +88,27 @@ pub fn gauss_elimination<const N: usize, const P: usize>(
         }
     }
     Ok((a, b))
+}
+
+pub fn dot_product<const N: usize>(v1: &Vector<N>, v2: &Vector<N>) -> f64 {
+    v1.0.iter().zip(v2.0.iter()).map(|(a, b)| a * b).sum()
+}
+
+pub fn gram_schmidt<const N: usize>(v: &[Vector<N>]) -> Vec<Vector<N>> {
+    let mut u = Vec::with_capacity(v.len());
+    let mut iter = v.iter();
+
+    if let Some(v1) = iter.next() {
+        u.push(v1.clone());
+
+        for v in iter {
+            let mut ortho = v.clone();
+            for a in &u {
+                let scale = dot_product(a, v) / dot_product(a, a);
+                ortho = ortho + a.clone() * -scale;
+            }
+            u.push(ortho);
+        }
+    }
+    u
 }
