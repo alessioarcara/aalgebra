@@ -1,4 +1,8 @@
-use crate::{Matrix, Vector};
+use crate::{
+    matrix::{identity_matrix, SquareMatrix},
+    vector::zeros_vector,
+    Matrix, Vector,
+};
 
 pub fn multiply_matrices<const M: usize, const N: usize, const P: usize>(
     a: &Matrix<M, N>,
@@ -19,7 +23,7 @@ fn row_subtract<const N: usize, const P: usize>(
     i: usize,
     j: usize,
     pivot: f64,
-    a: &mut Matrix<N, N>,
+    a: &mut SquareMatrix<N>,
     b: &mut Matrix<N, P>,
 ) {
     let scale = -a[i][j] / pivot;
@@ -32,9 +36,9 @@ fn row_subtract<const N: usize, const P: usize>(
 }
 
 fn echelon_form<const N: usize, const P: usize>(
-    a: &Matrix<N, N>,
+    a: &SquareMatrix<N>,
     b: &Matrix<N, P>,
-) -> Result<(Matrix<N, N>, Matrix<N, P>), &'static str> {
+) -> Result<(SquareMatrix<N>, Matrix<N, P>), &'static str> {
     let mut a = a.clone();
     let mut b = b.clone();
 
@@ -69,9 +73,9 @@ fn echelon_form<const N: usize, const P: usize>(
 }
 
 pub fn gauss_elimination<const N: usize, const P: usize>(
-    a: &Matrix<N, N>,
+    a: &SquareMatrix<N>,
     b: &Matrix<N, P>,
-) -> Result<(Matrix<N, N>, Matrix<N, P>), &'static str> {
+) -> Result<(SquareMatrix<N>, Matrix<N, P>), &'static str> {
     let (mut a, mut b) = echelon_form(a, b)?;
 
     // normalize
@@ -111,4 +115,83 @@ pub fn gram_schmidt<const N: usize>(v: &[Vector<N>]) -> Vec<Vector<N>> {
         }
     }
     u
+}
+
+pub fn forward_substitution<const N: usize>(l: &SquareMatrix<N>, b: &Vector<N>) -> Vector<N> {
+    let mut y = zeros_vector::<N>();
+    let mut b = b.clone();
+
+    y[0] = b[0] / l[0][0];
+    for k in 0..N - 1 {
+        for i in k + 1..N {
+            b[i] = b[i] - l[i][k] * y[k];
+        }
+        y[k + 1] = b[k + 1] / l[k + 1][k + 1];
+    }
+    y
+}
+
+pub fn backward_substitution<const N: usize>(u: &SquareMatrix<N>, y: &Vector<N>) -> Vector<N> {
+    let mut x = zeros_vector::<N>();
+    let mut y = y.clone();
+
+    for k in (0..N).rev() {
+        x[k] = y[k] / u[k][k];
+        for i in 0..k {
+            y[i] = y[i] - u[i][k] * x[k];
+        }
+    }
+    x
+}
+
+pub fn lu_decomposition<const N: usize>(a: &SquareMatrix<N>) -> (SquareMatrix<N>, SquareMatrix<N>) {
+    let mut u = a.clone();
+    let mut l = identity_matrix();
+
+    for k in 0..N - 1 {
+        for i in k + 1..N {
+            l[i][k] = u[i][k] / u[k][k];
+            for j in 0..=k {
+                u[i][j] = 0.;
+            }
+            for j in k + 1..N {
+                u[i][j] -= l[i][k] * u[k][j];
+            }
+        }
+    }
+    (l, u)
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::{matrix, vector};
+
+    use super::*;
+
+    #[test]
+    fn test_forward_substitution() {
+        let l = matrix!(1, 0, 0; 2, 1, 0; 3, 4, 1);
+        let b = vector!(1, 3, 7);
+
+        let y = forward_substitution(&l, &b);
+        let expected_y = vector!(1, 1, 0);
+        assert_eq!(y, expected_y);
+    }
+
+    #[test]
+    fn test_backward_substitution() {
+        let u = matrix!(1, 2, 3; 0, 1, 4; 0, 0, 1);
+        let y = vector!(1, 3, 1);
+
+        let x = backward_substitution(&u, &y);
+        let expected_x = vector!(0, -1, 1);
+        assert_eq!(x, expected_x);
+    }
+
+    #[test]
+    fn test_lu_decomposition() {
+        let a = matrix!(2, 1, 0; 4, 5, 2; 6, 15, 12);
+        let (l, u) = lu_decomposition(&a);
+        assert_eq!(a, multiply_matrices(&l, &u));
+    }
 }

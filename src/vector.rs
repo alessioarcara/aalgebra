@@ -1,4 +1,4 @@
-use std::ops::{Add, Mul};
+use std::ops::{Add, Index, IndexMut, Mul};
 
 #[derive(Debug, PartialEq)]
 pub struct Vector<const N: usize>(pub [f64; N]);
@@ -21,10 +21,28 @@ impl<const N: usize> Mul<f64> for Vector<N> {
     }
 }
 
+impl<const N: usize> Index<usize> for Vector<N> {
+    type Output = f64;
+
+    fn index(&self, index: usize) -> &f64 {
+        &self.0[index]
+    }
+}
+
+impl<const N: usize> IndexMut<usize> for Vector<N> {
+    fn index_mut(&mut self, index: usize) -> &mut f64 {
+        &mut self.0[index]
+    }
+}
+
 impl<const N: usize> Clone for Vector<N> {
     fn clone(&self) -> Self {
         Self(self.0)
     }
+}
+
+pub fn zeros_vector<const N: usize>() -> Vector<N> {
+    Vector([0.; N])
 }
 
 #[cfg(test)]

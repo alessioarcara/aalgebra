@@ -1,6 +1,8 @@
 use crate::linalg::gauss_elimination;
 use std::ops::{Index, IndexMut};
 
+pub type SquareMatrix<const N: usize> = Matrix<N, N>;
+
 #[derive(Debug, PartialEq)]
 pub struct Matrix<const M: usize, const N: usize>(pub [[f64; N]; M]);
 
@@ -74,7 +76,7 @@ impl<const N: usize> Matrix<N, N> {
     }
 }
 
-pub fn identity_matrix<const N: usize>() -> Matrix<N, N> {
+pub fn identity_matrix<const N: usize>() -> SquareMatrix<N> {
     let mut id = [[0.0; N]; N];
     (0..N).for_each(|i| id[i][i] = 1.0);
     Matrix(id)

@@ -6,6 +6,8 @@ pub use linalg::{gauss_elimination, gram_schmidt, multiply_matrices};
 pub use matrix::Matrix;
 pub use vector::Vector;
 
+pub type Vec2 = Vector<2>;
+
 #[macro_export]
 macro_rules! vector {
     ($($x:expr),*) => {
