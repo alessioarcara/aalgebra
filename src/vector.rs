@@ -41,6 +41,7 @@ impl<const N: usize> Clone for Vector<N> {
     }
 }
 
+#[allow(dead_code)]
 pub fn zeros_vector<const N: usize>() -> Vector<N> {
     Vector([0.; N])
 }

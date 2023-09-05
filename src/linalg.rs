@@ -117,6 +117,7 @@ pub fn gram_schmidt<const N: usize>(v: &[Vector<N>]) -> Vec<Vector<N>> {
     u
 }
 
+#[allow(dead_code)]
 pub fn forward_substitution<const N: usize>(l: &SquareMatrix<N>, b: &Vector<N>) -> Vector<N> {
     let mut y = zeros_vector::<N>();
     let mut b = b.clone();
@@ -124,13 +125,14 @@ pub fn forward_substitution<const N: usize>(l: &SquareMatrix<N>, b: &Vector<N>) 
     y[0] = b[0] / l[0][0];
     for k in 0..N - 1 {
         for i in k + 1..N {
-            b[i] = b[i] - l[i][k] * y[k];
+            b[i] -= l[i][k] * y[k];
         }
         y[k + 1] = b[k + 1] / l[k + 1][k + 1];
     }
     y
 }
 
+#[allow(dead_code)]
 pub fn backward_substitution<const N: usize>(u: &SquareMatrix<N>, y: &Vector<N>) -> Vector<N> {
     let mut x = zeros_vector::<N>();
     let mut y = y.clone();
@@ -138,12 +140,13 @@ pub fn backward_substitution<const N: usize>(u: &SquareMatrix<N>, y: &Vector<N>)
     for k in (0..N).rev() {
         x[k] = y[k] / u[k][k];
         for i in 0..k {
-            y[i] = y[i] - u[i][k] * x[k];
+            y[i] -= u[i][k] * x[k];
         }
     }
     x
 }
 
+#[allow(dead_code)]
 pub fn lu_decomposition<const N: usize>(a: &SquareMatrix<N>) -> (SquareMatrix<N>, SquareMatrix<N>) {
     let mut u = a.clone();
     let mut l = identity_matrix();
